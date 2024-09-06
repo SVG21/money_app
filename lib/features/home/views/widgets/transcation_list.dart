@@ -30,7 +30,7 @@ class TransactionList extends ConsumerWidget {
             ),
             Padding(
               padding:
-              const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
               child: Text(date, style: AppTextStyles.smallText),
             ),
             ...transactionsForDate.map((transaction) {
@@ -63,7 +63,7 @@ class TransactionList extends ConsumerWidget {
                   ),
                   trailing: Text(
                     '${transaction.type == TransactionType.topup ? '+' : ''}£'
-                        '${transaction.amount.toStringAsFixed(2)}',
+                    '${transaction.amount.toStringAsFixed(2)}',
                     style: TextStyle(
                       color: transaction.type == TransactionType.topup
                           ? AppColors.primaryColor

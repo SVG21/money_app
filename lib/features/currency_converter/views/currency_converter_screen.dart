@@ -50,7 +50,6 @@ class CurrencyConverterScreen extends ConsumerWidget {
             ),
             SizedBox(height: screenHeight * 0.03),
 
-
             Container(
               padding: EdgeInsets.all(screenWidth * 0.03),
               decoration: BoxDecoration(
@@ -128,7 +127,6 @@ class CurrencyConverterScreen extends ConsumerWidget {
               ),
             ),
             SizedBox(height: screenHeight * 0.03),
-
 
             if (selectedCurrencyRate != null)
               Column(
