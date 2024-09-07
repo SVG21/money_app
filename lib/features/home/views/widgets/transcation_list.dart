@@ -12,25 +12,49 @@ class TransactionList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final groupedTransactions = ref.watch(transactionGroupedByDateProvider);
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final sortedKeys = groupedTransactions.keys.toList()
+      ..sort((a, b) {
+        if (a == 'TODAY') return -1;
+        if (b == 'TODAY') return 1;
+        if (a == 'YESTERDAY') return -1;
+        if (b == 'YESTERDAY') return 1;
+        return b.compareTo(a); // Sort other dates in descending order.
+      });
+
     return ListView.builder(
       shrinkWrap: true,
-      itemCount: groupedTransactions.length,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: sortedKeys.length + 1,
       itemBuilder: (context, index) {
-        final date = groupedTransactions.keys.elementAt(index);
+        if (index == 0) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: screenHeight * 0.1),
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    vertical: screenHeight * 0.01,
+                    horizontal: screenWidth * 0.04),
+                child: const Text('Recent Activity',
+                    style: AppTextStyles.headLineTextBlack),
+              ),
+            ],
+          );
+        }
+
+        final date = sortedKeys[index - 1];
         final transactionsForDate = groupedTransactions[date]!;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 72),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
-              child: Text('Recent Activity',
-                  style: AppTextStyles.headLineTextBlack),
-            ),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16),
+              padding: EdgeInsets.symmetric(
+                  vertical: screenHeight * 0.01,
+                  horizontal: screenWidth * 0.04),
               child: Text(date, style: AppTextStyles.smallText),
             ),
             ...transactionsForDate.map((transaction) {
@@ -39,27 +63,29 @@ class TransactionList extends ConsumerWidget {
                 child: ListTile(
                   leading: Container(
                     decoration: BoxDecoration(
-                      color: AppColors.primaryColor, // Background color
-                      borderRadius: BorderRadius.circular(
-                          6), // Slightly smaller rounded corners
+                      color: AppColors.primaryColor,
+                      // Background color
+                      borderRadius: BorderRadius.circular(screenWidth * 0.015),
+                      // Adjust rounded corners
                       border: Border.all(
                         color: AppColors.primaryColor, // Border color
-                        width: 1.2, // Slightly thinner border
+                        width: screenWidth * 0.003, // Adjust border width
                       ),
                     ),
-                    padding: const EdgeInsets.all(
-                        6), // Reduced padding for a smaller size
+                    padding: EdgeInsets.all(screenWidth * 0.015),
+                    // Adjust padding
                     child: Icon(
                       transaction.type == TransactionType.payment
                           ? Icons.shopping_cart
                           : Icons.add,
                       color: AppColors.whiteColor, // Icon color
-                      size: 18, // Slightly smaller icon size
+                      size: screenWidth * 0.05, // Adjust icon size
                     ),
                   ),
                   title: Text(
                     transaction.name,
-                    style: AppTextStyles.bodyTextBlack,
+                    style: AppTextStyles.bodyTextBlack.copyWith(
+                        fontSize: screenWidth * 0.04), // Adjust text size
                   ),
                   trailing: Text(
                     '${transaction.type == TransactionType.topup ? '+' : ''}£'
@@ -68,12 +94,12 @@ class TransactionList extends ConsumerWidget {
                       color: transaction.type == TransactionType.topup
                           ? AppColors.primaryColor
                           : AppColors.blackColor,
-                      fontSize: 18,
+                      fontSize: screenWidth * 0.045, // Adjust font size
                     ),
                   ),
                 ),
               );
-            }),
+            }), // Convert map to list for rendering
           ],
         );
       },
