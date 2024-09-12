@@ -13,18 +13,15 @@ class Transaction {
     required this.date,
   });
 
-  // Convert a Transaction to a Map for JSON serialization
   Map<String, dynamic> toJson() {
     return {
-      'type':
-          type.toString().split('.').last, // Store as String (e.g., "payment")
+      'type': type.toString().split('.').last,
       'name': name,
       'amount': amount,
       'date': date.toIso8601String(),
     };
   }
 
-  // Convert a JSON Map to a Transaction object
   factory Transaction.fromJson(Map<String, dynamic> json) {
     return Transaction(
       type: TransactionType.values

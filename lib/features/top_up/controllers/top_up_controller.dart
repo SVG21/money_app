@@ -20,7 +20,7 @@ class TopUpController extends StateNotifier<List<Transaction>> {
     }
 
     final currentBalance = ref.read(balanceProvider);
-    ref.read(balanceProvider.notifier).state = currentBalance + amount;
+    ref.read(balanceProvider.notifier).updateBalance(currentBalance + amount);
     ref.read(transactionListProvider.notifier).addTransaction(
           Transaction(
             type: TransactionType.topup,

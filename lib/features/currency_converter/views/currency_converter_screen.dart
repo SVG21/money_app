@@ -6,12 +6,34 @@ import 'package:money_app/core/app_colors.dart';
 import 'package:money_app/core/app_text_styles.dart';
 import 'package:money_app/features/currency_converter/models/currency_model.dart';
 
-class CurrencyConverterScreen extends ConsumerWidget {
+class CurrencyConverterScreen extends ConsumerStatefulWidget {
   const CurrencyConverterScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final TextEditingController amountController = TextEditingController();
+  CurrencyConverterScreenState createState() => CurrencyConverterScreenState();
+}
+
+class CurrencyConverterScreenState
+    extends ConsumerState<CurrencyConverterScreen> {
+  late TextEditingController amountController;
+  late FocusNode amountFocusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    amountController = TextEditingController();
+    amountFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    amountFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final exchangeRates = ref.watch(currencyRatesProvider);
     final selectedCurrency = ref.watch(selectedCurrencyProvider);
     final selectedCurrencyRate = ref.watch(selectedCurrencyRateProvider);
@@ -30,9 +52,20 @@ class CurrencyConverterScreen extends ConsumerWidget {
         ),
         backgroundColor: AppColors.primaryColor,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.close, color: AppColors.whiteColor),
-            onPressed: () => Navigator.pop(context),
+          InkWell(
+            onTap: () => Navigator.pop(context),
+            child: CircleAvatar(
+              backgroundColor: AppColors.whiteColor,
+              radius: screenWidth * 0.035,
+              child: Icon(
+                Icons.close,
+                color: AppColors.primaryColor,
+                size: screenWidth * 0.045,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: screenWidth * 0.02,
           ),
         ],
       ),
@@ -99,7 +132,6 @@ class CurrencyConverterScreen extends ConsumerWidget {
             ),
             SizedBox(height: screenHeight * 0.03),
 
-            // Amount input field
             Container(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
               decoration: BoxDecoration(
@@ -115,6 +147,7 @@ class CurrencyConverterScreen extends ConsumerWidget {
               ),
               child: TextField(
                 controller: amountController,
+                focusNode: amountFocusNode,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: 'Amount in GBP',
@@ -152,6 +185,7 @@ class CurrencyConverterScreen extends ConsumerWidget {
                         return;
                       }
                       final convertedAmount = amount * selectedCurrencyRate;
+
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -166,7 +200,11 @@ class CurrencyConverterScreen extends ConsumerWidget {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () => Navigator.pop(context),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  // Clear the text field after showing the result
+                                  amountController.clear();
+                                },
                                 child: const Text('Close'),
                               ),
                             ],

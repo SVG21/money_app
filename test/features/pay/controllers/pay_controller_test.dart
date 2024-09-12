@@ -12,12 +12,15 @@ void main() {
   });
 
   group('Pay Feature', () {
-    test('Initial balance is set correctly', () {
+    test('Initial balance is set correctly', () async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble('balance', 150.25); // Set initial balance
+
       final container = ProviderContainer();
       expect(container.read(balanceProvider), 150.25);
     });
 
-    test('Makes a payment and reduces balance correctly', () {
+    test('Makes a payment and reduces balance correctly', () async {
       final container = ProviderContainer();
       final payNotifier = container.read(payControllerProvider.notifier);
       final initialBalance = container.read(balanceProvider);
@@ -26,9 +29,12 @@ void main() {
       payNotifier.makePayment(30.0, 'John Doe');
 
       expect(container.read(balanceProvider), 120.25);
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getDouble('balance'), 120.25); // Verify persistence
     });
 
-    test('Does not allow payment if balance is insufficient', () {
+    test('Does not allow payment if balance is insufficient', () async {
       final container = ProviderContainer();
       final payNotifier = container.read(payControllerProvider.notifier);
       final initialBalance = container.read(balanceProvider);
@@ -44,7 +50,7 @@ void main() {
       expect(container.read(balanceProvider), 150.25);
     });
 
-    test('Shows error if amount is 0 or less', () {
+    test('Shows error if amount is 0 or less', () async {
       final container = ProviderContainer();
       final payNotifier = container.read(payControllerProvider.notifier);
 
@@ -56,7 +62,7 @@ void main() {
       );
     });
 
-    test('Shows error if name is empty', () {
+    test('Shows error if name is empty', () async {
       final container = ProviderContainer();
       final payNotifier = container.read(payControllerProvider.notifier);
 

@@ -21,12 +21,11 @@ class TransactionList extends ConsumerWidget {
         if (b == 'TODAY') return 1;
         if (a == 'YESTERDAY') return -1;
         if (b == 'YESTERDAY') return 1;
-        return b.compareTo(a); // Sort other dates in descending order.
+        return b.compareTo(a);
       });
 
     return ListView.builder(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
       itemCount: sortedKeys.length + 1,
       itemBuilder: (context, index) {
         if (index == 0) {
@@ -47,7 +46,7 @@ class TransactionList extends ConsumerWidget {
 
         final date = sortedKeys[index - 1];
         final transactionsForDate = groupedTransactions[date]!;
-
+        transactionsForDate.sort((a, b) => b.date.compareTo(a.date));
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -68,8 +67,8 @@ class TransactionList extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(screenWidth * 0.015),
                       // Adjust rounded corners
                       border: Border.all(
-                        color: AppColors.primaryColor, // Border color
-                        width: screenWidth * 0.003, // Adjust border width
+                        color: AppColors.primaryColor,
+                        width: screenWidth * 0.003,
                       ),
                     ),
                     padding: EdgeInsets.all(screenWidth * 0.015),
@@ -78,14 +77,14 @@ class TransactionList extends ConsumerWidget {
                       transaction.type == TransactionType.payment
                           ? Icons.shopping_cart
                           : Icons.add,
-                      color: AppColors.whiteColor, // Icon color
-                      size: screenWidth * 0.05, // Adjust icon size
+                      color: AppColors.whiteColor,
+                      size: screenWidth * 0.05,
                     ),
                   ),
                   title: Text(
                     transaction.name,
-                    style: AppTextStyles.bodyTextBlack.copyWith(
-                        fontSize: screenWidth * 0.04), // Adjust text size
+                    style: AppTextStyles.bodyTextBlack
+                        .copyWith(fontSize: screenWidth * 0.04),
                   ),
                   trailing: Text(
                     '${transaction.type == TransactionType.topup ? '+' : ''}£'
@@ -94,7 +93,7 @@ class TransactionList extends ConsumerWidget {
                       color: transaction.type == TransactionType.topup
                           ? AppColors.primaryColor
                           : AppColors.blackColor,
-                      fontSize: screenWidth * 0.045, // Adjust font size
+                      fontSize: screenWidth * 0.045,
                     ),
                   ),
                 ),

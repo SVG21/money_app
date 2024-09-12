@@ -7,11 +7,24 @@ import 'package:money_app/core/app_colors.dart';
 import 'package:money_app/core/app_text_styles.dart';
 import 'package:money_app/core/utils.dart';
 
-class TopUpScreen extends ConsumerWidget {
+class TopUpScreen extends ConsumerStatefulWidget {
   const TopUpScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TopUpScreen> createState() => _TopUpScreenState();
+}
+
+class _TopUpScreenState extends ConsumerState<TopUpScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(topUpAmountProvider.notifier).state = '0.00';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final topUpAmount = ref.watch(topUpAmountProvider);
 
     final screenWidth = MediaQuery.of(context).size.width;
@@ -93,7 +106,7 @@ class TopUpScreen extends ConsumerWidget {
             Padding(
               padding: EdgeInsets.symmetric(vertical: screenHeight * 0.1),
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   final double enteredAmount =
                       double.tryParse(topUpAmount) ?? 0.0;
                   if (enteredAmount == 0.0) {
@@ -104,9 +117,12 @@ class TopUpScreen extends ConsumerWidget {
                     );
                     return;
                   }
+
                   ref
                       .read(topUpControllerProvider.notifier)
                       .topUp(enteredAmount);
+
+                  // Navigate back
                   Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
@@ -120,8 +136,10 @@ class TopUpScreen extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(screenWidth * 0.02),
                   ),
                 ),
-                child: Text('Top Up',
-                    style: TextStyle(fontSize: screenWidth * 0.05)),
+                child: Text(
+                  'Top Up',
+                  style: TextStyle(fontSize: screenWidth * 0.05),
+                ),
               ),
             ),
           ],

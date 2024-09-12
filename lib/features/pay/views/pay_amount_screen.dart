@@ -8,11 +8,24 @@ import 'package:money_app/core/app_colors.dart';
 import 'package:money_app/core/app_text_styles.dart';
 import 'package:money_app/core/utils.dart';
 
-class PayAmountScreen extends ConsumerWidget {
+class PayAmountScreen extends ConsumerStatefulWidget {
   const PayAmountScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PayAmountScreen> createState() => _PayAmountScreenState();
+}
+
+class _PayAmountScreenState extends ConsumerState<PayAmountScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(payAmountProvider.notifier).state = '0.00';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final amount = ref.watch(payAmountProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -38,8 +51,11 @@ class PayAmountScreen extends ConsumerWidget {
             child: CircleAvatar(
               backgroundColor: AppColors.whiteColor,
               radius: screenWidth * 0.035,
-              child: Icon(Icons.close,
-                  color: AppColors.primaryColor, size: screenWidth * 0.045),
+              child: Icon(
+                Icons.close,
+                color: AppColors.primaryColor,
+                size: screenWidth * 0.045,
+              ),
             ),
           ),
           SizedBox(width: screenWidth * 0.02)
@@ -66,12 +82,12 @@ class PayAmountScreen extends ConsumerWidget {
                         fontSize: screenWidth * 0.08),
                   ),
                   TextSpan(
-                    text: integerPart, // Use the integer part
+                    text: integerPart,
                     style: AppTextStyles.amountText
                         .copyWith(fontSize: screenWidth * 0.16),
                   ),
                   TextSpan(
-                    text: '.$decimalPart', // Use the decimal part
+                    text: '.$decimalPart',
                     style: AppTextStyles.amountText.copyWith(
                       fontSize: screenWidth * 0.08,
                     ),
@@ -103,6 +119,7 @@ class PayAmountScreen extends ConsumerWidget {
                     );
                     return;
                   }
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(

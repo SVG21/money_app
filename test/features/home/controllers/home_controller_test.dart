@@ -7,14 +7,37 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() async {
-    SharedPreferences.setMockInitialValues({}); // Set mock initial values
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({'balance': 125.25});
   });
 
   group('Home Controller Tests', () {
-    test('Initial balance is set correctly', () {
+    test('Initial balance is loaded correctly from SharedPreferences',
+        () async {
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getDouble('balance'),
+          125.25); // Confirm mock value is set to 125.25
+
       final container = ProviderContainer();
-      expect(container.read(balanceProvider), 150.25);
+      final balanceNotifier = container.read(balanceProvider.notifier);
+
+      await balanceNotifier.loadBalance();
+      final balance = container.read(balanceProvider);
+
+      expect(balance, 125.25); // This should now match 125.25
+    });
+
+    test('Balance is updated and saved correctly', () async {
+      final container = ProviderContainer();
+      final balanceNotifier = container.read(balanceProvider.notifier);
+
+      balanceNotifier.updateBalance(100.0);
+
+      final updatedBalance = container.read(balanceProvider);
+      expect(updatedBalance, 100.0);
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getDouble('balance'), 100.0);
     });
 
     test('Add transaction increases the list size', () async {
@@ -59,7 +82,9 @@ void main() {
       transactionNotifier.addTransaction(transaction);
 
       expect(
-          container.read(transactionListProvider).contains(transaction), true);
+        container.read(transactionListProvider).contains(transaction),
+        true,
+      );
     });
   });
 }

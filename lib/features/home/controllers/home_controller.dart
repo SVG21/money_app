@@ -4,7 +4,34 @@ import 'dart:convert';
 import 'package:money_app/core/utils.dart';
 import 'package:money_app/features/home/models/home_model.dart';
 
-final balanceProvider = StateProvider<double>((ref) => 150.25);
+final balanceProvider = StateNotifierProvider<BalanceNotifier, double>((ref) {
+  return BalanceNotifier();
+});
+
+class BalanceNotifier extends StateNotifier<double> {
+  BalanceNotifier() : super(150.25) {
+    loadBalance();
+  }
+
+  Future<void> loadBalance() async {
+    final prefs = await SharedPreferences.getInstance();
+    final double? savedBalance = prefs.getDouble('balance');
+
+    if (savedBalance != null) {
+      state = savedBalance;
+    }
+  }
+
+  Future<void> saveBalance(double balance) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('balance', balance);
+  }
+
+  void updateBalance(double newBalance) {
+    state = newBalance;
+    saveBalance(newBalance);
+  }
+}
 
 final transactionListProvider =
     StateNotifierProvider<TransactionListNotifier, List<Transaction>>(
@@ -38,7 +65,7 @@ class TransactionListNotifier extends StateNotifier<List<Transaction>> {
 
   void addTransaction(Transaction transaction) {
     state = [...state, transaction];
-    saveTransactions(); // Save the updated list to shared preferences
+    saveTransactions();
   }
 }
 
@@ -53,7 +80,7 @@ Map<String, List<Transaction>> groupTransactionsByDate(
   final Map<String, List<Transaction>> grouped = {};
 
   for (final transaction in transactions) {
-    final date = formatDate(transaction.date); // Use the utility function
+    final date = formatDate(transaction.date);
     if (grouped.containsKey(date)) {
       grouped[date]!.add(transaction);
     } else {
